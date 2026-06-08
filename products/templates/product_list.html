@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    /* --- PRODUCTS GRID --- */
+    .products-title {
+        margin-top: 40px;
+        font-size: 30px;
+        text-align: center;
+        font-weight: 700;
+        color: #222;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 24px;
+        margin: 30px 20px;
+    }
+
+    .product-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        height: 380px;
+    }
+
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-image {
+        height: 170px;
+        overflow: hidden;
+        background: #f8f8f8;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover img {
+        transform: scale(1.04);
+    }
+
+    .product-content {
+        padding: 15px;
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .product-name {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #222;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .price {
+        font-size: 16px;
+        font-weight: 700;
+        color: #28a745;
+        margin-bottom: 4px;
+    }
+
+    .stock {
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .instock {
+        color: #28a745;
+    }
+
+    .outstock {
+        color: #d9534f;
+    }
+
+    /* BUTTONS */
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .btn-group form {
+        flex: 1;
+        width: 100%;
+        margin: 0;
+    }
+
+    .btn {
+        width: 100%;
+        height: 42px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 25px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+    }
+
+    .cart-btn {
+        background: #ff6a00;
+        color: #fff;
+    }
+
+    .cart-btn:hover {
+        background: #ff3c00;
+    }
+
+    .buy-btn {
+        background: #28a745;
+        color: #fff;
+    }
+
+    .buy-btn:hover {
+        background: #218838;
+    }
+
+    .btn:disabled {
+        background: #ccc;
+        color: #777;
+        cursor: not-allowed;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+        .product-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+        .product-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .btn-group {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn {
+            height: 42px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<h2 class="products-title">Our Products</h2>
+
+<div class="product-grid">
+    {% for product in products %}
+    <div class="product-card">
+
+        <div class="product-image">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+            <img src="/static/img/placeholder.png" alt="No image">
+            {% endif %}
+        </div>
+
+        <div class="product-content">
+            <div>
+                <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
+                <p class="price">₹ {{ product.price }}</p>
+                <p class="stock">
+                    {% if product.stock > 0 %}
+                    <span class="instock">In Stock</span>
+                    {% else %}
+                    <span class="outstock">Out of Stock</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="btn-group">
+                {% if product.stock > 0 %}
+                <!-- Add to Cart -->
+                <form method="POST" action="{% url 'cart:add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn cart-btn">Add to Cart</button>
+                </form>
+
+                <!-- Buy Now -->
+                <form method="POST" action="{% url 'place_order' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn buy-btn">Buy Now</button>
+                </form>
+                {% else %}
+                <button class="btn" disabled>Out of Stock</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p style="grid-column: 1/-1; text-align:center; color:#555;">
+        No products available at the moment.
+    </p>
+    {% endfor %}
+</div>
+
+{% endblock %}

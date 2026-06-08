@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* --- ORDERS CONTAINER --- */
+    .orders-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin: 40px auto;
+        max-width: 900px;
+    }
+
+    /* --- ORDER CARD --- */
+    .order-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .order-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- ORDER HEADER --- */
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .order-header a {
+        text-decoration: none;
+        color: #222;
+        font-weight: 600;
+        font-size: 18px;
+    }
+
+    .status {
+        font-weight: 600;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background: #ff9800;
+    }
+
+    .status-processing {
+        background: #2196f3;
+    }
+
+    .status-shipped {
+        background: #00bcd4;
+    }
+
+    .status-delivered {
+        background: #4caf50;
+    }
+
+    .status-cancelled {
+        background: #f44336;
+    }
+
+    /* --- ORDER INFO --- */
+    .order-info {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 20px;
+        flex-wrap: wrap;
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* --- VIEW DETAILS BUTTON --- */
+    .view-details-btn {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 8px 20px;
+        background: #ff6a00;
+        color: white;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.3s;
+        width: auto;
+        /* button width auto, not full */
+        min-width: 130px;
+        /* minimum size */
+        text-align: center;
+    }
+
+    .view-details-btn:hover {
+        background: #ff3c00;
+        transform: scale(1.05);
+    }
+
+    /* --- EMPTY MESSAGE --- */
+    .empty-orders {
+        text-align: center;
+        font-size: 18px;
+        color: #555;
+        margin-top: 50px;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 600px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .order-info {
+            flex-direction: column;
+            gap: 5px;
+        }
+    }
+</style>
+
+<h2 style="text-align:center; margin-bottom:30px;">Your Orders</h2>
+
+<div class="orders-container">
+    {% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="order-header">
+            <a href="{% url 'order_detail' order.id %}">Order #{{ order.id }} - ₹{{ order.total_price }}</a>
+            <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+        </div>
+        <div class="order-info">
+            <div>Placed on: {{ order.created_at|date:"M d, Y H:i" }}</div>
+            <div>Total Items: {{ order.orderitem_set.count }}</div>
+        </div>
+        <a href="{% url 'order_detail' order.id %}" class="view-details-btn">View Details</a>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-orders">
+        You have no orders yet.<br>
+        <a href="{% url 'product_list' %}" class="view-details-btn">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

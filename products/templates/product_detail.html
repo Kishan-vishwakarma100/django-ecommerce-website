@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    /* --- PRODUCT DETAIL CONTAINER --- */
+    .product-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+        margin-top: 40px;
+        background: #fff;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        align-items: start;
+    }
+
+    /* --- BREADCRUMB --- */
+    .breadcrumb {
+        font-size: 14px;
+        margin-bottom: 20px;
+        color: #888;
+    }
+
+    .breadcrumb a {
+        text-decoration: none;
+        color: #555;
+        transition: 0.2s;
+    }
+
+    .breadcrumb a:hover {
+        color: #ff6a00;
+    }
+
+    /* --- IMAGE SECTION --- */
+    .product-image {
+        position: sticky;
+        top: 20px;
+        background: #fdfdfd;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .product-image img {
+        width: 100%;
+        max-height: 450px;
+        object-fit: contain;
+        transition: transform 0.4s ease;
+    }
+
+    .product-image img:hover {
+        transform: scale(1.03);
+    }
+
+    /* --- PRODUCT INFO --- */
+    .product-info h2 {
+        font-size: 32px;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .price {
+        font-size: 28px;
+        color: #28a745;
+        font-weight: 800;
+        margin: 10px 0;
+    }
+
+    .stock-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .in-stock-badge {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .out-stock-badge {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    /* --- RATING --- */
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+
+    .star {
+        color: #ffb400;
+        font-size: 18px;
+    }
+
+    .star.empty {
+        color: #ccc;
+    }
+
+    .review-count {
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* --- QUANTITY SELECTOR --- */
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .quantity-selector input[type="number"] {
+        width: 60px;
+        padding: 5px 10px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+
+    .quantity-selector label {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    /* --- BUTTON GROUPS --- */
+    .button-group {
+        display: flex;
+        gap: 15px;
+        width: 100%;
+        margin-bottom: 35px;
+    }
+
+    .button-group form,
+    .button-group a {
+        flex: 1;
+        display: flex;
+    }
+
+    .button-group form button,
+    .wishlist-btn {
+        width: 100%;
+        height: 50px;
+        font-size: 16px;
+        font-weight: 700;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .cart-btn {
+        background: #ff6a00;
+        color: #fff;
+    }
+
+    .cart-btn:hover {
+        background: #ff3c00;
+        box-shadow: 0 4px 15px rgba(255, 106, 0, 0.3);
+    }
+
+    .buy-btn {
+        background: #222;
+        color: #fff;
+    }
+
+    .buy-btn:hover {
+        background: #000;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .wishlist-btn {
+        background: #ff4081;
+        color: #fff;
+        margin-left: 10px;
+    }
+
+    .wishlist-btn:hover {
+        background: #e91e63;
+    }
+
+    .btn-action:disabled {
+        background: #ccc !important;
+        cursor: not-allowed;
+    }
+
+    /* --- PRODUCT HIGHLIGHTS --- */
+    .product-highlights h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .product-highlights ul {
+        list-style-type: disc;
+        margin-left: 20px;
+        color: #555;
+        line-height: 1.6;
+    }
+
+    /* --- DESCRIPTION --- */
+    .description {
+        border-top: 1px solid #eee;
+        padding-top: 25px;
+        line-height: 1.8;
+        color: #444;
+    }
+
+    .description h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    /* --- SOCIAL SHARE --- */
+    .social-share {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .social-share a {
+        color: #555;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .social-share a:hover {
+        color: #ff6a00;
+    }
+
+    /* --- RELATED PRODUCTS --- */
+    .related {
+        margin-top: 80px;
+        padding-bottom: 40px;
+    }
+
+    .related h3 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 25px;
+    }
+
+    .related-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+        transition: 0.3s ease;
+    }
+
+    .related-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .related-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+
+    .related-card h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .related-price {
+        color: #28a745;
+        font-weight: 700;
+        font-size: 18px;
+        margin-top: auto;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 900px) {
+        .product-container {
+            grid-template-columns: 1fr;
+            padding: 20px;
+        }
+
+        .product-image img {
+            max-height: 300px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .button-group {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .button-group form,
+        .wishlist-btn {
+            width: 100%;
+        }
+
+        .btn-action {
+            width: 100% !important;
+            height: 45px;
+            box-sizing: border-box;
+        }
+    }
+</style>
+
+<!-- BREADCRUMB -->
+<nav class="breadcrumb">
+    <a href="{% url 'home' %}">Home</a> &gt;
+    <span>{{ product.name }}</span>
+</nav>
+
+<section class="product-container">
+
+    <div class="product-image">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+        <div style="height:300px; background:#eee; width:100%; border-radius:12px;"></div>
+        {% endif %}
+    </div>
+
+    <div class="product-info">
+        <h2>{{ product.name }}</h2>
+
+        <p class="price">₹ {{ product.price }}</p>
+
+        <div class="rating">
+            {% for i in "12345" %}
+            {% if forloop.counter <= product.rating %} <span class="star">&#9733;</span>
+                {% else %}
+                <span class="star empty">&#9734;</span>
+                {% endif %}
+                {% endfor %}
+                <span class="review-count">({{ product.review_count }} Reviews)</span>
+        </div>
+
+        <div class="stock-badge {% if product.stock > 0 %}in-stock-badge{% else %}out-stock-badge{% endif %}">
+            {% if product.stock > 0 %}
+            ● In Stock ({{ product.stock }} available)
+            {% else %}
+            ● Out of Stock
+            {% endif %}
+        </div>
+
+        {% if product.stock > 0 %}
+        <div class="quantity-selector">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" min="1" max="{{ product.stock }}" value="1">
+        </div>
+        {% endif %}
+
+        <div class="button-group">
+            {% if product.stock > 0 %}
+            <form method="POST" action="{% url 'cart:add_to_cart' product.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-action cart-btn">Add to Cart</button>
+            </form>
+
+            <form method="POST" action="{% url 'buy_now' product.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-action buy-btn">Buy Now</button>
+            </form>
+            {% else %}
+            <button class="btn-action" disabled>Currently Unavailable</button>
+            {% endif %}
+        </div>
+
+        {% if product.features %}
+        <div class="product-highlights">
+            <h3>Key Features</h3>
+            <ul>
+                {% for feature in product.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="description">
+            <h3>Description</h3>
+            <p>{{ product.description|linebreaks }}</p>
+        </div>
+
+        <div class="social-share">
+            <span>Share:</span>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+                target="_blank">Facebook</a>
+            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}" target="_blank">Twitter</a>
+            <a href="https://www.linkedin.com/shareArticle?url={{ request.build_absolute_uri }}"
+                target="_blank">LinkedIn</a>
+        </div>
+    </div>
+
+</section>
+
+<section class="related">
+    <h3>Related Products</h3>
+    <div class="related-grid">
+        {% for item in related_products %}
+        <a href="{% url 'product_detail' item.slug %}" class="related-card">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+            {% endif %}
+            <h4 title="{{ item.name }}">{{ item.name }}</h4>
+            <p class="related-price">₹ {{ item.price }}</p>
+        </a>
+        {% empty %}
+        <p style="grid-column: 1/-1; text-align:center; color:#888;">No related products available.</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

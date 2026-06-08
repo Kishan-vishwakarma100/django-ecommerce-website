@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* PROFESSIONAL REGISTER PAGE STYLES */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f6fa;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 75vh;
+    padding: 20px;
+}
+
+.auth-card {
+    background: #ffffff;
+    padding: 45px 35px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+}
+
+.auth-card h2 {
+    margin-bottom: 30px;
+    font-size: 26px;
+    color: #ff6a00;
+    font-weight: 700;
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+.auth-card input:focus {
+    border-color: #ff6a00;
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 106, 0, 0.2);
+}
+
+.auth-card button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #ff6a00, #ff3c00);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.auth-card button:hover {
+    background: linear-gradient(90deg, #ff3c00, #ff6a00);
+    transform: scale(1.03);
+}
+
+.auth-card p {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555;
+}
+
+.auth-card a {
+    color: #ff6a00;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-card a:hover {
+    text-decoration: underline;
+}
+
+.form-errors {
+    margin-bottom: 15px;
+    text-align: left;
+    color: #e74c3c;
+    font-size: 14px;
+    list-style: none;
+    padding-left: 0;
+}
+</style>
+
+{% if form.errors %}
+    <ul class="form-errors">
+    {% for field in form %}
+        {% for error in field.errors %}
+            <li>{{ field.label }}: {{ error }}</li>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create Your Account</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password1" placeholder="Password" required>
+            <input type="password" name="password2" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    </div>
+</div>
+
+{% endblock %}

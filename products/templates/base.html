@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MyStore | Premium Ecommerce{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL REFINEMENTS --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: rgba(17, 17, 17, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ff6a00;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #eee;
+            font-size: 15px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #ff6a00;
+        }
+
+        /* --- USER SECTION --- */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            background: rgba(255, 106, 0, 0.15);
+            color: #ff6a00;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .auth-btn {
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .login-btn {
+            background: #ff6a00;
+            color: white;
+        }
+
+        .login-btn:hover {
+            background: #ff3c00;
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            border: 1px solid #444;
+            color: #ccc;
+        }
+
+        .logout-btn:hover {
+            background: #d9534f;
+            border-color: #d9534f;
+            color: white;
+        }
+
+        /* --- ALERTS / MESSAGES --- */
+        .messages-container {
+            margin: 20px auto 0 auto;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.4s ease-out;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 5px solid #28a745;
+        }
+
+        .alert-error,
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 5px solid #17a2b8;
+        }
+
+        .close-alert {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.5;
+            line-height: 1;
+        }
+
+        /* --- CONTENT AREA --- */
+        .main-container {
+            flex: 1;
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto 60px auto;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            background: #111;
+            color: #888;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-links a {
+            color: #555;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: #ff6a00;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 850px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+            }
+
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="logo">MyStore</a>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/products/">Shop</a>
+            {% if user.is_authenticated %}
+            <a href="/cart/">Cart</a>
+            <a href="/orders/">My Orders</a>
+            {% endif %}
+        </div>
+
+        <div class="user-section">
+            {% if user.is_authenticated %}
+            <span class="user-badge">Hi, {{ user.first_name|default:user.username }}</span>
+            <a href="{% url 'logout' %}" class="auth-btn logout-btn">Logout</a>
+            {% else %}
+            <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" id="msg-{{ forloop.counter }}">
+            <span>{{ message }}</span>
+            <button class="close-alert" onclick="dismissMessage('msg-{{ forloop.counter }}')">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="main-container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Support</a>
+        </div>
+        <p style="font-size: 13px; margin-top: 15px;">© 2026 MyStore Ecommerce. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Function to manually close a message
+        function dismissMessage(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.opacity = '0';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Auto-hide success messages after 5 seconds
+        document.addEventListener("DOMContentLoaded", function () {
+            const successAlerts = document.querySelectorAll('.alert-success');
+            successAlerts.forEach(alert => {
+                setTimeout(() => {
+                    dismissMessage(alert.id);
+                }, 5000);
+            });
+        });
+    </script>
+
+</body>
+
+</html>
