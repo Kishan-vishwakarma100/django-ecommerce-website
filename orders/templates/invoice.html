@@ -1,129 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Invoice #{{ order.id }}</title>
+
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
             margin: 0;
-            padding: 0;
-            background: #f4f4f4;
-            color: #333;
+            padding: 20px;
         }
 
-        .invoice-container {
-            max-width: 800px;
-            margin: 50px auto;
+        .container {
+            max-width: 900px;
+            margin: auto;
             background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
-        header {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
         }
 
-        header h1 {
-            font-size: 28px;
-            color: #222;
+        .header h1 {
+            margin: 0;
         }
 
-        header .company-info {
-            text-align: right;
-            font-size: 14px;
-            color: #555;
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .print-btn {
+            background: #000;
+            color: #fff;
+        }
+
+        .toggle-btn {
+            background: #007bff;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .info {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card {
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 6px;
+            width: 30%;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
-        table th,
-        table td {
-            border: 1px solid #ddd;
+        th, td {
             padding: 12px;
-            text-align: left;
-        }
-
-        table th {
-            background: #28a745;
-            color: white;
-            font-weight: 600;
-        }
-
-        table tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .total {
-            margin-top: 20px;
-            text-align: right;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        footer {
-            margin-top: 50px;
+            border-bottom: 1px solid #ddd;
             text-align: center;
-            font-size: 12px;
-            color: #888;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+            transition: 0.3s;
+        }
+
+        .total-box {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: green;
+        }
+
+        .product-details {
+            display: none;
+            background: #f9f9f9;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        @media print {
+            .btn {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="invoice-container">
-        <header>
-            <h1>Invoice #{{ order.id }}</h1>
-            <div class="company-info">
-                MyStore Pvt. Ltd.<br>
-                support@mystore.com<br>
-                +91 12345 67890
-            </div>
-        </header>
 
-        <div>
-            <strong>Order Date:</strong> {{ order.created_at|date:"M d, Y" }}<br>
-            <strong>Status:</strong> {{ order.get_status_display }}<br>
-            <strong>Customer:</strong> {{ order.user.get_full_name }}
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Invoice #{{ order.id }}</h1>
+        <button class="btn print-btn" onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <!-- INFO -->
+    <div class="info">
+        <div class="card">
+            <strong>Customer</strong><br>
+            {{ order.user.username }}
         </div>
 
+        <div class="card">
+            <strong>Date</strong><br>
+            {{ order.created_at }}
+        </div>
+
+        <div class="card">
+            <strong>Status</strong><br>
+            {{ order.status }}
+        </div>
+    </div>
+
+    <!-- TOGGLE DETAILS -->
+    <button class="btn toggle-btn" onclick="toggleDetails()">Show / Hide Product Details</button>
+
+    <!-- TABLE -->
+    <div id="details">
         <table>
             <thead>
                 <tr>
                     <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Unit Price (₹)</th>
-                    <th>Total (₹)</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for item in order.orderitem_set.all %}
                 <tr>
                     <td>{{ item.product.name }}</td>
+                    <td>₹{{ item.product.price }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.product.price }}</td>
-                    <td>{{ item.item_total }}</td>
+                    <td>₹{{ item.item_total }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <div class="total">Grand Total: ₹{{ order.total_price }}</div>
-
-        <footer>
-            Thank you for shopping with MyStore!<br>
-            This is a computer-generated invoice.
-        </footer>
     </div>
-</body>
 
+    <!-- TOTAL -->
+    <div class="total-box">
+        Grand Total: ₹{{ order.total_price }}
+    </div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+function toggleDetails() {
+    var x = document.getElementById("details");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+
+</body>
 </html>

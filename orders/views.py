@@ -1,4 +1,3 @@
-# orders/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Order, OrderItem
 from products.models import Product
@@ -7,33 +6,38 @@ from django.contrib import messages
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
 
 from cart.models import Cart, CartItem
 from django.utils import timezone
 from decimal import Decimal
 
 
-# List all orders for the logged-in user
+# =========================
+# ORDER LIST
+# =========================
 @login_required
 def order_list(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'order_list.html', {'orders': orders})
 
 
-# View order details
+# =========================
+# ORDER DETAIL
+# =========================
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    # Calculate subtotal for each item dynamically
+
+    # Calculate item total dynamically
     for item in order.orderitem_set.all():
         item.item_total = item.product.price * item.quantity
 
     return render(request, 'order_detail.html', {'order': order})
 
 
-# Checkout page
+# =========================
+# CHECKOUT PAGE
+# =========================
 @login_required
 def checkout(request):
     try:
@@ -52,8 +56,8 @@ def checkout(request):
         item.subtotal = item.product.price * item.quantity
 
     total_price = sum(item.subtotal for item in cart_items)
-    shipping_cost = Decimal('50.00') if total_price < Decimal('1000.00') else Decimal('0.00')  # example rule
-    tax_rate = Decimal('0.05')  # 5% tax
+    shipping_cost = Decimal('50.00') if total_price < Decimal('1000.00') else Decimal('0.00')
+    tax_rate = Decimal('0.05')
     tax_amount = (total_price + shipping_cost) * tax_rate
     grand_total = total_price + shipping_cost + tax_amount
 
@@ -69,7 +73,9 @@ def checkout(request):
     return render(request, 'checkout.html', context)
 
 
-# Place order from checkout
+# =========================
+# PLACE ORDER
+# =========================
 @login_required
 def place_order(request):
     try:
@@ -113,31 +119,37 @@ def place_order(request):
     return render(request, 'order_success.html', {'order': order})
 
 
-# Download invoice PDF
+# =========================
+# DOWNLOAD INVOICE (NO WEASYPRINT)
+# =========================
 @login_required
 def download_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # Ensure each item has total
+    # Calculate item totals
     for item in order.orderitem_set.all():
         item.item_total = item.product.price * item.quantity
 
     html_string = render_to_string('invoice.html', {'order': order})
-    html = HTML(string=html_string)
-    pdf_file = html.write_pdf()
 
-    response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+    response = HttpResponse(html_string, content_type='text/html')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.html"'
+
     return response
 
 
+# =========================
+# CANCEL ORDER
+# =========================
 @login_required
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
+
     if order.status in ['pending', 'processing']:
         order.status = 'cancelled'
         order.save()
         messages.success(request, f"Order #{order.id} has been cancelled.")
     else:
         messages.warning(request, "This order cannot be cancelled.")
+
     return redirect('order_detail', order_id=order.id)
