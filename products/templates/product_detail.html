@@ -381,19 +381,49 @@
         {% endif %}
 
         <div class="button-group">
+
             {% if product.stock > 0 %}
+
+            {% if user.is_authenticated %}
+
+            <!-- ADD TO CART -->
             <form method="POST" action="{% url 'cart:add_to_cart' product.id %}">
                 {% csrf_token %}
-                <button type="submit" class="btn-action cart-btn">Add to Cart</button>
+                <button type="submit" class="btn-action cart-btn">
+                    Add to Cart
+                </button>
             </form>
 
+            <!-- BUY NOW -->
             <form method="POST" action="{% url 'buy_now' product.id %}">
                 {% csrf_token %}
-                <button type="submit" class="btn-action buy-btn">Buy Now</button>
+                <button type="submit" class="btn-action buy-btn">
+                    Buy Now
+                </button>
             </form>
+
+            {% else %}
+
+            <!-- LOGIN BUTTONS (NOW SAME STRUCTURE AS FORMS) -->
+
+            <form action="{% url 'login' %}" method="get">
+                <button type="submit" class="btn-action cart-btn">
+                    Login to Add to Cart
+                </button>
+            </form>
+
+            <form action="{% url 'login' %}" method="get">
+                <button type="submit" class="btn-action buy-btn">
+                    Login to Buy
+                </button>
+            </form>
+
+            {% endif %}
+
             {% else %}
             <button class="btn-action" disabled>Currently Unavailable</button>
             {% endif %}
+
         </div>
 
         {% if product.features %}

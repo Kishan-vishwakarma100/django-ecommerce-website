@@ -142,6 +142,21 @@
         cursor: not-allowed;
     }
 
+    .login-btn {
+        background: #ff6a00;
+        color: #fff;
+    }
+
+    .login-btn:hover {
+        background: #ff3c00;
+    }
+
+    .login-btn,
+    .cart-btn,
+    .buy-btn {
+        transition: all 0.25s ease;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 900px) {
         .product-grid {
@@ -174,7 +189,9 @@
 
         <div class="product-image">
             {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            <a href="{% url 'product_detail' product.slug %}">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            </a>
             {% else %}
             <img src="/static/img/placeholder.png" alt="No image">
             {% endif %}
@@ -182,7 +199,9 @@
 
         <div class="product-content">
             <div>
-                <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
+                <a href="{% url 'product_detail' product.slug %}" style="text-decoration:none; color:inherit;">
+                    <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
+                </a>
                 <p class="price">₹ {{ product.price }}</p>
                 <p class="stock">
                     {% if product.stock > 0 %}
@@ -194,7 +213,11 @@
             </div>
 
             <div class="btn-group">
+
                 {% if product.stock > 0 %}
+
+                {% if user.is_authenticated %}
+
                 <!-- Add to Cart -->
                 <form method="POST" action="{% url 'cart:add_to_cart' product.id %}">
                     {% csrf_token %}
@@ -208,12 +231,24 @@
                     <input type="hidden" name="quantity" value="1">
                     <button type="submit" class="btn buy-btn">Buy Now</button>
                 </form>
+
+                {% else %}
+
+                <!-- LOGIN REQUIRED -->
+                <a href="{% url 'login' %}" class="btn login-btn">
+                    Login to Buy
+                </a>
+
+                {% endif %}
+
                 {% else %}
                 <button class="btn" disabled>Out of Stock</button>
                 {% endif %}
+
             </div>
         </div>
     </div>
+
     {% empty %}
     <p style="grid-column: 1/-1; text-align:center; color:#555;">
         No products available at the moment.
